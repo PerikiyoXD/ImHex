@@ -9,11 +9,18 @@ namespace hex::log::impl {
     static wolv::io::File s_loggerFile;
     std::mutex g_loggerMutex;
 
-    FILE *getDestination() {
-        if (s_loggerFile.isValid())
-            return s_loggerFile.getHandle();
-        else
-            return stdout;
+    std::vector<FILE *> getDestinations() {
+
+        static std::vector<FILE *> destinations;
+
+        if (destinations.empty()) {
+            destinations.push_back(stdout);
+
+            if (s_loggerFile.isValid())
+                destinations.push_back(s_loggerFile.getHandle());
+        }
+
+        return destinations;
     }
 
     wolv::io::File& getFile() {

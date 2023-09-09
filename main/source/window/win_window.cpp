@@ -232,23 +232,25 @@ namespace hex {
 
 
     void Window::initNative() {
-        HWND consoleWindow = ::GetConsoleWindow();
-        DWORD processId = 0;
-        ::GetWindowThreadProcessId(consoleWindow, &processId);
-        if (GetCurrentProcessId() == processId) {
-            ShowWindow(consoleWindow, SW_HIDE);
-            FreeConsole();
-            log::impl::redirectToFile();
-        } else {
-            auto hConsole = ::GetStdHandle(STD_OUTPUT_HANDLE);
-            if (hConsole != INVALID_HANDLE_VALUE) {
-                DWORD mode = 0;
-                if (::GetConsoleMode(hConsole, &mode) == TRUE) {
-                    mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT;
-                    ::SetConsoleMode(hConsole, mode);
-                }
-            }
-        }
+        // HWND consoleWindow = ::GetConsoleWindow();
+        // DWORD processId = 0;
+
+        log::impl::redirectToFile();
+
+        // ::GetWindowThreadProcessId(consoleWindow, &processId);
+        // if (GetCurrentProcessId() == processId) {
+        //     ShowWindow(consoleWindow, SW_HIDE);
+        //     
+        // } else {
+        //   auto hConsole = ::GetStdHandle(STD_OUTPUT_HANDLE);
+        //   if (hConsole != INVALID_HANDLE_VALUE) {
+        //       DWORD mode = 0;
+        //       if (::GetConsoleMode(hConsole, &mode) == TRUE) {
+        //           mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT;
+        //           ::SetConsoleMode(hConsole, mode);
+        //       }
+        //   }
+        // }
 
         ImHexApi::System::impl::setBorderlessWindowMode(true);
 

@@ -607,9 +607,9 @@ namespace hex::init {
             #endif
             { "Loading settings",        loadSettings,        false },
             { "Configuring UI scale",    configureUIScale,    false },
-            { "Loading plugins",         loadPlugins,         true  },
-            { "Checking for updates",    checkForUpdates,     true  },
-            { "Loading fonts",           loadFonts,           true  },
+            { "Loading plugins",         loadPlugins,         false  },
+            { "Checking for updates",    checkForUpdates,     false  },
+            { "Loading fonts",           loadFonts,           false  },
         };
     }
 

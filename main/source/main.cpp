@@ -117,10 +117,20 @@ int main(int argc, char **argv) {
     Window::initNative();
     hex::crash::setupCrashHandlers();
 
+    std::string commandLine;
+    for (int i = 1; i < argc; ++i)
+    {
+        commandLine += argv[i];
+        commandLine += " ";
+    }
+
+    log::info("imhex.exe {}", commandLine);
+
     if (argc > 1) {
         handleCommandLineInterface(argc, argv);
     }
-
+    
+        
     log::info("Welcome to ImHex {}!", ImHexApi::System::getImHexVersion());
     log::info("Compiled using commit {}@{}", ImHexApi::System::getCommitBranch(), ImHexApi::System::getCommitHash());
     log::info("Running on {} {} ({})", ImHexApi::System::getOSName(), ImHexApi::System::getOSVersion(), ImHexApi::System::getArchitecture());
