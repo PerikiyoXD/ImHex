@@ -350,6 +350,10 @@ macro(configureCMake)
     # display a warning about options being set using set() instead of option().
     # Explicitly set the policy to NEW to suppress the warning.
     set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
+    set(CMAKE_POLICY_DEFAULT_CMP0063 NEW)
+
+    set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "Disable deprecated warnings" FORCE)
 endmacro()
 
 macro(setDefaultBuiltTypeIfUnset)
@@ -648,6 +652,10 @@ function(enableUnityBuild TARGET)
 endfunction()
 
 function(generatePDBs)
+    if (NOT IMHEX_GENERATE_PDBS)
+        return()
+    endif ()
+
     if (NOT WIN32 OR CMAKE_BUILD_TYPE STREQUAL "Debug")
         return()
     endif ()
@@ -661,7 +669,6 @@ function(generatePDBs)
     FetchContent_Populate(cv2pdb)
 
     set(PDBS_TO_GENERATE main main-forwarder libimhex ${PLUGINS})
-    add_custom_target(pdbs)
     foreach (PDB ${PDBS_TO_GENERATE})
         if (PDB STREQUAL "main")
             set(GENERATED_PDB imhex)
@@ -673,19 +680,20 @@ function(generatePDBs)
             set(GENERATED_PDB plugins/${PDB})
         endif ()
 
+        add_custom_target(${PDB}_pdb DEPENDS ${CMAKE_BINARY_DIR}/${GENERATED_PDB}.pdb)
         add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${GENERATED_PDB}.pdb
-                WORKING_DIRECTORY ${cv2pdb_SOURCE_DIR}
+                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
                 COMMAND
                 (
                     ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/${GENERATED_PDB}.pdb &&
-                    ${cv2pdb_SOURCE_DIR}/cv2pdb64.exe
-                    $<TARGET_FILE:${PDB}>
+                    ${cv2pdb_SOURCE_DIR}/cv2pdb64.exe $<TARGET_FILE:${PDB}> ${CMAKE_BINARY_DIR}/${GENERATED_PDB} &&
+                    ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/${GENERATED_PDB}
                 ) || (exit 0)
-                DEPENDS $<TARGET_FILE:${PDB}>
                 COMMAND_EXPAND_LISTS)
 
-        target_sources(imhex_all PRIVATE ${CMAKE_BINARY_DIR}/${GENERATED_PDB}.pdb)
         install(FILES ${CMAKE_BINARY_DIR}/${GENERATED_PDB}.pdb DESTINATION ".")
+
+        add_dependencies(imhex_all ${PDB}_pdb)
     endforeach ()
 
 endfunction()

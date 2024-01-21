@@ -170,6 +170,10 @@ namespace hex {
                     static_cast<LONG>((::GetSystemMetrics(SM_CYFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER)) * ImHexApi::System::getGlobalScale())
                 };
 
+                if (glfwGetWindowMonitor(ImHexApi::System::getMainWindowHandle()) != nullptr) {
+                    return HTCLIENT;
+                }
+
                 RECT window;
                 if (!::GetWindowRect(hwnd, &window)) {
                     return HTNOWHERE;
@@ -192,6 +196,12 @@ namespace hex {
                 }
 
                 std::string_view hoveredWindowName = GImGui->HoveredWindow == nullptr ? "" : GImGui->HoveredWindow->Name;
+
+                if (!ImHexApi::System::impl::isWindowResizable()) {
+                    if (result != RegionClient) {
+                        return HTCAPTION;
+                    }
+                }
 
                 switch (result) {
                     case RegionLeft:
@@ -477,6 +487,13 @@ namespace hex {
         // Remove WS_POPUP style from the window to make various window management tools work
         auto hwnd = glfwGetWin32Window(m_window);
         ::SetWindowLong(hwnd, GWL_STYLE, (GetWindowLong(hwnd, GWL_STYLE) | WS_OVERLAPPEDWINDOW) & ~WS_POPUP);
+
+        if (!ImHexApi::System::impl::isWindowResizable()) {
+            if (glfwGetWindowAttrib(m_window, GLFW_MAXIMIZED)) {
+                glfwRestoreWindow(m_window);
+            }
+        }
+
     }
 
     void Window::endNativeWindowFrame() {
