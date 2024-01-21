@@ -61,7 +61,7 @@ namespace hex::plugin::builtin {
             }
         });
 
-        EventProviderClosing::subscribe([](const prv::Provider *provider, bool *shouldClose) {
+        EventProviderClosing::subscribe([](prv::Provider* provider, bool *shouldClose) {
             if (provider->isDirty()) {
                 *shouldClose = false;
                 PopupUnsavedChanges::open("hex.builtin.popup.close_provider.desc"_lang,

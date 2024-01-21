@@ -128,6 +128,8 @@ namespace hex {
             }
 
             getTokenStore().insert({ token, subscribe<E>(function) });
+
+            log::debug("Registered event '{}' to token '{}'", wolv::type::getTypeName<E>(), token);
         }
 
         /**

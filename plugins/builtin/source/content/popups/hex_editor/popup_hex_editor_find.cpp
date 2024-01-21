@@ -195,7 +195,7 @@ namespace hex::plugin::builtin {
 
         constexpr static auto searchFunction = [](const auto &haystackBegin, const auto &haystackEnd,
                                                   const auto &needleBegin, const auto &needleEnd) {
-            return std::search(haystackBegin, haystackEnd, needleBegin, needleEnd);
+            return std::search(haystackBegin, haystackEnd, std::default_searcher(needleBegin, needleEnd));
         };
 
         if (!m_searchBackwards) {
