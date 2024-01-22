@@ -438,7 +438,7 @@ namespace hex::plugin::builtin {
                     // Draw toolbar icon box
                     ImGuiExt::BeginSubWindow("hex.builtin.setting.toolbar.icons"_lang, ImGui::GetContentRegionAvail());
                     {
-                        if (ImGui::BeginTable("##icons", 6, ImGuiTableFlags_SizingStretchSame, ImGui::GetContentRegionAvail())) {
+                        if (ImGui::BeginTable("##icons", 5, ImGuiTableFlags_SizingStretchSame, ImGui::GetContentRegionAvail())) {
                             ImGui::TableNextRow();
 
                             // Find all menu items that are in the toolbar and sort them by their toolbar index
@@ -524,6 +524,9 @@ namespace hex::plugin::builtin {
                                 auto min = ImGui::GetItemRectMin();
                                 auto max = ImGui::GetItemRectMax();
                                 auto iconSize = ImGui::CalcTextSize(menuItem->icon.glyph.c_str());
+                                auto drawList = ImGui::GetWindowDrawList();
+                                drawList->AddText((min + ((max - min) - iconSize) / 2) - ImVec2(0, 10_scaled), ImGuiExt::GetCustomColorU32(ImGuiCustomCol(menuItem->icon.color)), menuItem->icon.glyph.c_str());
+
 
                                 auto text = Lang(unlocalizedName).get();
                                 if (text.ends_with("..."))
@@ -531,10 +534,22 @@ namespace hex::plugin::builtin {
 
                                 auto textSize = ImGui::CalcTextSize(text.c_str());
 
-                                // Draw icon and text of the toolbar item
-                                auto drawList = ImGui::GetWindowDrawList();
-                                drawList->AddText((min + ((max - min) - iconSize) / 2) - ImVec2(0, 10_scaled), ImGuiExt::GetCustomColorU32(ImGuiCustomCol(menuItem->icon.color)), menuItem->icon.glyph.c_str());
-                                drawList->AddText((min + ((max - min)) / 2) + ImVec2(-textSize.x / 2, 5_scaled), ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
+                                // If the text is too long, next word will be in a new line \n
+                                if (textSize.x >= max.x - min.x) {
+                                    auto textSplit = splitString(text, " ");
+
+                                    for(size_t splitIndex = 0; splitIndex < textSplit.size(); splitIndex++) {
+                                        auto splitTextSize = ImGui::CalcTextSize(textSplit[splitIndex].c_str());
+                                        float yPosition = 10_scaled + ((float)splitIndex / 2) * 30_scaled;
+
+                                        if (splitIndex != 0 && splitIndex % 2 == 0)
+                                            ImGui::NewLine();
+
+                                        drawList->AddText((min + ((max - min) - splitTextSize) / 2) + ImVec2(0, yPosition), ImGui::GetColorU32(ImGuiCol_Text), textSplit[splitIndex].c_str());
+                                    }
+                                } else {
+                                    drawList->AddText((min + ((max - min) - textSize) / 2) + ImVec2(0, 10_scaled), ImGui::GetColorU32(ImGuiCol_Text), text.c_str());
+                                }
                             }
 
                             ImGui::EndTable();
