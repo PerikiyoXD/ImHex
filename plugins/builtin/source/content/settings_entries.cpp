@@ -611,7 +611,7 @@ namespace hex::plugin::builtin {
                 const auto &fonts = hex::getFonts();
 
                 bool customFont = false;
-                std::string pathPreview = "";
+                std::string pathPreview;
                 if (m_path.empty()) {
                     pathPreview = "Default Font";
                 } else if (fonts.contains(m_path)) {
